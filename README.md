@@ -1,6 +1,9 @@
 # Dosbox Staging Replacer GUI Wrapper
 
-![GitHub repo size](https://img.shields.io/github/repo-size/Shin-Aska/DosboxStagingReplacerGUI?style=for-the-badge)
+![GitHub](https://img.shields.io/github/license/Shin-Aska/DosboxStagingReplacerForGOGGalaxy-UI)
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/Shin-Aska/DosboxStagingReplacerForGOGGalaxy-UI)
+![GitHub repo size](https://img.shields.io/github/repo-size/Shin-Aska/DosboxStagingReplacerForGOGGalaxy-UI)
+
 ![Dosbox Staging Replacer GUI](./docs/SampleUI.png)
 
 A lightweight graphical user interface built in WPF (C#) for interacting with [`DosboxStagingReplacerForGOGGalaxy`](https://github.com/Shin-Aska/DosboxStagingReplacerForGOGGalaxy), a command-line tool that allows management of DOSBox installations tied to GOG Galaxy games.
@@ -19,13 +22,14 @@ A lightweight graphical user interface built in WPF (C#) for interacting with [`
 ## 🔧 Requirements
 
 - Windows 10/11
-- [.NET Desktop Runtime](https://dotnet.microsoft.com/en-us/download/dotnet)
-- `DosboxStagingReplacer.exe` from the main repository:  
-  👉 [DosboxStagingReplacerForGOGGalaxy Releases](https://github.com/Shin-Aska/DosboxStagingReplacerForGOGGalaxy/releases)
+- .NET Framework 4.7.2 or higher
+- PowerShell 5.1 or higher
 
 ---
 
 ## 🚀 Usage
+
+### The manual way
 
 1. **Clone this repository**  
 
@@ -35,12 +39,14 @@ A lightweight graphical user interface built in WPF (C#) for interacting with [`
 
 1. **Download `DosboxStagingReplacer.exe`**
     Place the executable next to the GUI app, or adjust the script path if needed.
-2. **Run the GUI (WPF executable)**
+2. **Run the GUI (PS1 script) [main.ps1]**
     The app will:
    - List available games via the replacer tool
    - Let you select a game and apply changes (e.g., replace DOSBox path)
-3. **Behind the scenes**
-    The app uses a bundled PowerShell script (`invoke-wrapper.ps1`) to call `DosboxStagingReplacer.exe` with the proper arguments.
+
+### The easier way
+1. **Download the latest release**  
+   Get the bundled.zip from the latest version of the [releases page](https://github.com/Shin-Aska/DosboxStagingReplacerForGOGGalaxy-UI/releases/latest)
 
 ------
 
@@ -48,9 +54,12 @@ A lightweight graphical user interface built in WPF (C#) for interacting with [`
 
 | File                     | Description                                       |
 | ------------------------ | ------------------------------------------------- |
-| `MainWindow.xaml`        | The WPF UI layout (with background image support) |
-| `invoke-wrapper.ps1`     | PowerShell script wrapper for CLI integration     |
+| `Interface.xaml`         | The WPF UI layout (with background image support) |
+| `main.ps1`               | PowerShell script wrapper for CLI integration     |
 | `dosbox-replacer.png`    | Retro-themed background image                     |
+
+There are other files in the repository, but they are not relevant to the GUI. Such as anything under `/docs`, 
+the `.gitignore` file, and this `README.md` file itself.
 
 ## 📦 Related Project
 
