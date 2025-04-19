@@ -1,0 +1,2 @@
+# DosboxStagingReplacerForGOGGalaxy-UI
+The user interface implementation of DosboxStagingReplacerForGOGGalaxy using PowerShell
