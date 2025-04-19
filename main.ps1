@@ -103,11 +103,11 @@ else {
         )
     
         # Prepare argument list
-        $args = @()
+        $mainArgs = @()
         if ($FilterDosOnly -or ($dosOnly.IsChecked -eq $true)) {
-            $args += "-do"
+            $mainArgs += "-do"
         }
-        $args += "-lg"
+        $mainArgs += "-lg"
     
         # Check if executable exists
         if (-not (Test-Path $exePath)) {
@@ -120,7 +120,7 @@ else {
         try {
             # Capture output from external command
             # Run the exe and re-encode to ensure UTF-8 is interpreted correctly
-            $rawOutput = & $exePath @args
+            $rawOutput = & $exePath @mainArgs
             $utf8Output = [System.Text.Encoding]::UTF8.GetString(
                 [System.Text.Encoding]::Default.GetBytes($rawOutput)
             )
