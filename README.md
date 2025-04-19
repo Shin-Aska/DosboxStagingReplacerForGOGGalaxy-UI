@@ -6,7 +6,7 @@
 
 ![Dosbox Staging Replacer GUI](./docs/SampleUI.png)
 
-A lightweight graphical user interface built in WPF (C#) for interacting with [`DosboxStagingReplacerForGOGGalaxy`](https://github.com/Shin-Aska/DosboxStagingReplacerForGOGGalaxy), a command-line tool that allows management of DOSBox installations tied to GOG Galaxy games.
+A lightweight graphical user interface built in WPF for interacting with [`DosboxStagingReplacerForGOGGalaxy`](https://github.com/Shin-Aska/DosboxStagingReplacerForGOGGalaxy), a command-line tool that allows management of DOSBox installations tied to GOG Galaxy games.
 
 ---
 
