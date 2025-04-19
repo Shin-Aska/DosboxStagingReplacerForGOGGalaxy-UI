@@ -34,7 +34,7 @@ A lightweight graphical user interface built in WPF for interacting with [`Dosbo
 1. **Clone this repository**  
 
    ```powershell
-   git clone https://github.com/YOUR_USERNAME/ThisRepoName.git
+   git clone https://github.com/Shin-Aska/DosboxStagingReplacerForGOGGalaxy-UI.git
    ```
 
 1. **Download `DosboxStagingReplacer.exe`**
