@@ -24,11 +24,14 @@ A lightweight graphical user interface built in WPF for interacting with [`Dosbo
 - Windows 10/11
 - .NET Framework 4.7.2 or higher
 - PowerShell 5.1 or higher
-
+- Ideally have a supported custom Dosbox build installled
 ---
 
 ## 🚀 Usage
 
+### Step by step usage
+1. **Get a copy of this script**
+------
 ### The manual way
 
 1. **Clone this repository**  
@@ -47,6 +50,10 @@ A lightweight graphical user interface built in WPF for interacting with [`Dosbo
 ### The easier way
 1. **Download the latest release**  
    Get the bundled.zip from the latest version of the [releases page](https://github.com/Shin-Aska/DosboxStagingReplacerForGOGGalaxy-UI/releases/latest)
+------
+2. **Select a game in the selection that you wish to replace your DOS runner game with**
+3. **Customize the options (such as Dosbox version) to what you want**
+4. **Click the Change DOSBox button**
 
 ------
 
