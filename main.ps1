@@ -118,15 +118,30 @@ else {
         }
     
         try {
-            # Capture output from external command
-            # Run the exe and re-encode to ensure UTF-8 is interpreted correctly
-            $rawOutput = & $exePath @mainArgs
-            $utf8Output = [System.Text.Encoding]::UTF8.GetString(
-                [System.Text.Encoding]::Default.GetBytes($rawOutput)
-            )
+            
+            # Configure the process start information
+            $startInfo = New-Object System.Diagnostics.ProcessStartInfo
+            $startInfo.FileName = $exePath
+            $startInfo.Arguments = $mainArgs -join ' '
+            $startInfo.RedirectStandardOutput = $true
+            $startInfo.UseShellExecute = $false
+            $startInfo.CreateNoWindow = $true
+            $startInfo.StandardOutputEncoding = [System.Text.Encoding]::UTF8
+
+            # Create and start the process
+            $process = New-Object System.Diagnostics.Process
+            $process.StartInfo = $startInfo
+            $process.Start() | Out-Null
+
+            # Read the entire output stream to its end. 
+            # The .NET StreamReader will use the UTF-8 encoding we specified above.
+            $rawOutput = $process.StandardOutput.ReadToEnd()
+
+            # Wait for the process to finish
+            $process.WaitForExit()
 
             # Now convert the corrected string to JSON
-            $json = $utf8Output | ConvertFrom-Json
+            $json = @($rawOutput | ConvertFrom-Json)
     
             # Validate it's an array of games
             if (-not ($json -is [System.Collections.IEnumerable])) {
@@ -134,14 +149,14 @@ else {
             }
     
             # Build list of games (Title + ReleaseKey)
-            $games = $json | ForEach-Object {
+            $games = @($json | ForEach-Object {
                 [PSCustomObject]@{
-                    Title      = $_.title
-                    ReleaseKey = $_.releaseKey
+                    Title            = $_.title
+                    ReleaseKey       = $_.releaseKey
                     InstallationPath = $_.installationPath
                     InstallationDate = $_.installationDate
                 }
-            }
+            })
     
             # Assign to ComboBox with display and value bindings
             $gameSelection.DisplayMemberPath = "Title"
