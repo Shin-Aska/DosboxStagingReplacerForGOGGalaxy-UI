@@ -118,7 +118,7 @@ This command tells PowerShell to ignore the policy for a single execution. It do
 
 This permanently changes the execution policy for your user account. This is convenient but has security implications if you are not careful about the scripts you run.
 
-1.  Open a PowerShell console.
+1.  Open a PowerShell console as an administrator.
 2.  Run the following command. It only needs to be run once.
     ```powershell
     Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
