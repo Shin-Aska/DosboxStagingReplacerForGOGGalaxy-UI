@@ -12,7 +12,7 @@ A lightweight graphical user interface built with PowerShell and WPF for the [`D
 
 ## 🧩 Features
 
--   Simple, intuitive GUI for Browse and selecting your GOG Galaxy games.
+-   Simple, intuitive GUI for browsing and selecting your GOG Galaxy games.
 -   Filter games to show only DOS-based titles.
 -   Easily configure and execute the replacer tool with just a few clicks.
 -   A classic, retro-themed background to get you in the mood for some DOS gaming.
@@ -30,7 +30,7 @@ A lightweight graphical user interface built with PowerShell and WPF for the [`D
 
 PowerShell scripts, especially those that interact with other files, can sometimes be flagged as suspicious by antivirus software. This script is provided as plain text so you can inspect its contents and understand exactly what it does. The code is heavily commented for clarity.
 
-If your antivirus flags `main.ps1`, please mark it as a false positive. We recommend reviewing the code yourself to be confident in its safety.
+If your antivirus flags `main.ps1`, please mark it as a false positive. It is recommended to review the code yourself to be confident in its safety.
 
 ---
 
