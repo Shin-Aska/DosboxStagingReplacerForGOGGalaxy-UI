@@ -1,4 +1,4 @@
-$scriptVersion = "1.0.3"
+$scriptVersion = "1.0.4"
 
 Add-Type -AssemblyName PresentationFramework
 
@@ -105,6 +105,21 @@ else {
     $dosOnly = $window.FindName("DosOnly")
     # We set the default value to true
     $dosOnly.IsChecked = $true
+
+    # We define FullScreen checkbox
+    $fullScreenDisable = $window.FindName("FullScreen")
+    # We set the default value to true
+    $fullScreenDisable.IsChecked = $true
+
+    # We define ResetResolution checkbox
+    $resetResolution = $window.FindName("ResetResolution")
+    # We set the default value to true
+    $resetResolution.IsChecked = $true
+
+    # We define ResetMapping checkbox
+    $resetMapping = $window.FindName("ResetMapping")
+    # We set the default value to true
+    $resetMapping.IsChecked = $true
 
     # Then we also define GameSelection combobox
     $gameSelection = $window.FindName("GameSelection")
@@ -262,6 +277,21 @@ else {
                 return
             }
 
+            # Build extra arguments based on checkboxes
+            $extraArgs = @()
+            if (!$fullScreenDisable.IsChecked) { 
+                $extraArgs += "-cfsdf"
+                $extraArgs += "false"
+            }
+            if (!$resetResolution.IsChecked) { 
+                $extraArgs += "-crsdf"
+                $extraArgs += "false"
+            }
+            if (!$resetMapping.IsChecked) { 
+                $extraArgs += "-cmpdf"
+                $extraArgs += "false"
+            }
+
             # We call the following from DosboxStagingReplacer.exe in the following order:
             # 1. -b (For backup)
             # 2. -rd -rk (releaseKey) -dv (dosboxVersion) [Assuming that the mode is Installed]
@@ -271,11 +301,13 @@ else {
             & $exePath -b
             # Call 2.
             if ($dosboxMode.SelectedItem -eq "Installed") {
-                & $exePath -rd -rk $selectedGame.ReleaseKey -dv $dosboxVersion.SelectedItem
+                & $exePath -rd -rk $selectedGame.ReleaseKey -dv $dosboxVersion.SelectedItem @extraArgs
+                # Print the arguments to the console for debugging
+                Write-Host "Running command: $exePath -rd -rk $($selectedGame.ReleaseKey) -dv $($dosboxVersion.SelectedItem) @($extraArgs -join ' ')"
             }
             # Call 3.
             else {
-                & $exePath -rd -rk $selectedGame.ReleaseKey -dvm $dosboxVersionText.Text
+                & $exePath -rd -rk $selectedGame.ReleaseKey -dvm $dosboxVersionText.Text @extraArgs
             }
             # Show a message box to indicate success
             [System.Windows.MessageBox]::Show("Dosbox version changed successfully.", "Success", "OK", "Information")
