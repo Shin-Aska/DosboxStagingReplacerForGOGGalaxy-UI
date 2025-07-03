@@ -15,6 +15,8 @@
             <!-- Top controls -->
             <RowDefinition Height="Auto" />
             <!-- DOSBox version row -->
+             <RowDefinition Height="Auto" />
+            <!-- DosboxStaging Replacer settings row -->
             <RowDefinition Height="*" />
             <!-- Main content -->
         </Grid.RowDefinitions>
@@ -27,7 +29,7 @@
 
         <!-- Background -->
         <Image x:Name="Background"
-            Grid.RowSpan="3" Grid.ColumnSpan="3"
+            Grid.RowSpan="4" Grid.ColumnSpan="3"
             Source="/dosbox-replacer.png"
             Stretch="UniformToFill"
             Panel.ZIndex="-1" />
@@ -91,9 +93,28 @@
                 Height="30" />
         </StackPanel>
 
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="2" Grid.Column="0"
+                    Grid.ColumnSpan="3"
+                    HorizontalAlignment="Center"
+                    Margin="10">
+            <CheckBox x:Name="FullScreen" Content="Turn off fullscreen"
+                      Foreground="White"
+                      VerticalAlignment="Center"
+                      Margin="5"/>
+            <CheckBox x:Name="ResetResolution" Content="Reset resolution values to defaults"
+                      Foreground="White"
+                      VerticalAlignment="Center"
+                      Margin="5"/>
+            <CheckBox x:Name="ResetMapping" Content="Reset mapping to defaults"
+                      Foreground="White"
+                      VerticalAlignment="Center"
+                      Margin="5"/>
+        </StackPanel>
+
         <!-- Main content area -->
         <RichTextBox x:Name="GameDescription"
-            Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3"
+            Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
             Margin="20"
             VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch">
