@@ -3,3 +3,4 @@
 *.exe
 bundle.zip
 build_bundle.ps1
+*.sublime-workspace
