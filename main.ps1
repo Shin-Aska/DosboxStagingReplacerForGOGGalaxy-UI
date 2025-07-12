@@ -1,6 +1,28 @@
-$scriptVersion = "1.0.4"
+$scriptVersion = "1.0.5"
 
-Add-Type -AssemblyName PresentationFramework
+try {
+    Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
+}
+catch {
+    Write-Host "Failed to load PresentationFramework assembly. Ensure you are running this on a system with WPF support." -ForegroundColor Red
+    exit 1
+}
+
+# Add a check here to ensure that the script is running on PowerShell 5.0 or later
+if ($PSVersionTable.PSVersion.Major -lt 5) {
+    [System.Windows.MessageBox]::Show("This script requires PowerShell 5.0 or later. You are running PowerShell $psVersion. The script may not work as expected.", "Warning", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
+}
+
+# Check Operating System Version if it is running on Windows
+if (-not ([System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT)) {
+    [System.Windows.MessageBox]::Show("This script is designed to run on Windows operating systems only. You are running on a non-Windows OS.", "Error", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Error)
+    exit 1
+}
+
+# Then check if it is running on Windows 10 or later
+if ([System.Environment]::OSVersion.Version.Major -lt 10) {
+    [System.Windows.MessageBox]::Show("This script is designed to work on Windows 10 or later. The script may not work as expected.", "Warning", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
+}
 
 # Load the XAML file as a string
 $xamlString = Get-Content ".\Interface.xaml" -Raw
@@ -14,11 +36,6 @@ $window = [Windows.Markup.XamlReader]::Load($reader)
 
 # Get the current powershell version
 $psVersion = $PSVersionTable.PSVersion.ToString()
-
-# Add a check here to ensure that the script is running on PowerShell 5.0 or later
-if ($PSVersionTable.PSVersion.Major -lt 5) {
-    [System.Windows.MessageBox]::Show("This script requires PowerShell 5.0 or later. You are running PowerShell $psVersion. The script may not work as expected.", "Warning", [System.Windows.MessageBoxButton]::OK, [System.Windows.MessageBoxImage]::Warning)
-}
 
 # Rename the root title of the window
 $window.Title = "Dosbox Staging Replacer for GOG Galaxy v$scriptVersion - Running on PowerShell v$psVersion"
