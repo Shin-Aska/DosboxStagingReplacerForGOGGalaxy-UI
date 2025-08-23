@@ -10,7 +10,7 @@ A lightweight graphical user interface built with PowerShell and WPF for the [`D
 
 ---
 
-## 🧩 Features
+## Features
 
 -   Simple, intuitive GUI for browsing and selecting your GOG Galaxy games.
 -   Filter games to show only DOS-based titles.
@@ -19,14 +19,14 @@ A lightweight graphical user interface built with PowerShell and WPF for the [`D
 
 ---
 
-## 🔧 Requirements
+## Requirements
 
 -   **Operating System:** Windows 10 or Windows 11
 -   **PowerShell:** Windows PowerShell 5.1 (included by default in Win10/11) or PowerShell 7+.
 
 ---
 
-## ⚠️ A Note on Antivirus Software
+## A Note on Antivirus Software
 
 PowerShell scripts, especially those that interact with other files, can sometimes be flagged as suspicious by antivirus software. This script is provided as plain text so you can inspect its contents and understand exactly what it does. The code is heavily commented for clarity.
 
@@ -34,7 +34,7 @@ If your antivirus flags `main.ps1`, please mark it as a false positive. It is re
 
 ---
 
-## 🚀 Installation and Usage
+## Installation and Usage
 
 There are two ways to get started. The easy way is recommended for most users.
 
@@ -90,7 +90,7 @@ This method is for users who want to run the latest, unreleased code directly.
 
 ---
 
-## ⚠️ Troubleshooting: Execution Policy Errors
+## Troubleshooting: Execution Policy Errors
 
 PowerShell's security features prevent running scripts downloaded from the internet by default. If you see an error mentioning `execution policy`, you have three options.
 
@@ -127,7 +127,7 @@ This permanently changes the execution policy for your user account. This is con
 
 ---
 
-## 📁 Project Files
+## Project Files
 
 | File                  | Description                                            |
 | --------------------- | ------------------------------------------------------ |
@@ -137,13 +137,13 @@ This permanently changes the execution policy for your user account. This is con
 | `/docs`               | Contains screenshots and documentation assets.         |
 | `README.md`           | The file you are currently reading.                    |
 
-## 📦 Related Project
+## Related Project
 
 This GUI is a front-end for the powerful command-line tool:
-🔗 **[`DosboxStagingReplacerForGOGGalaxy`](https://github.com/Shin-Aska/DosboxStagingReplacerForGOGGalaxy)**
+**[`DosboxStagingReplacerForGOGGalaxy`](https://github.com/Shin-Aska/DosboxStagingReplacerForGOGGalaxy)**
 
 ---
 
-## 📝 License
+## License
 
 This project is licensed under the **MIT License**. For the full license text, please refer to the license file in the upstream tool's repository.
