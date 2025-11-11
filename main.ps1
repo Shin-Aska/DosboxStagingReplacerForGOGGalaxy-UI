@@ -1,4 +1,4 @@
-$scriptVersion = "1.0.8"
+$scriptVersion = "1.0.9"
 
 try {
     Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
@@ -78,7 +78,7 @@ else {
 
     # Let us define DosboxVersion combobox and it's sources
     $dosboxVersion = $window.FindName("DosboxVersion")
-    $sources = @("dosbox-staging", "dosbox-x", "dosbox-ece")
+    $sources = @("dosbox-staging", "dosbox-x", "dosbox-pure")
     $dosboxVersion.ItemsSource = $sources
     $dosboxVersion.IsEditable = $false
     $dosboxVersion.SelectedIndex = 0
@@ -92,7 +92,7 @@ else {
     $dosboxModeButton = $window.FindName("DosboxModeButton")
 
     # Add an event handler if $dosboxMode is changed where it it is, if the value is 
-    # Installed, the sources for $dosboxVersion will be dosbox-staging, dosbox-x and dosbox-ece
+    # Installed, the sources for $dosboxVersion will be dosbox-staging, dosbox-x and dosbox-pure
     # On the other hand, if it is Portable, the sources will blank and combobox will become editable instead
     $dosboxMode.add_SelectionChanged({
             if ($dosboxMode.SelectedItem -eq "Installed") {
