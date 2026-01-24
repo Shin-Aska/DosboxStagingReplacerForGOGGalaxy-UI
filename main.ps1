@@ -1,4 +1,4 @@
-$scriptVersion = "1.1.0"
+$scriptVersion = "1.1.1"
 
 try {
     Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
@@ -226,7 +226,29 @@ else {
         }
     }
     
-    
+    function Invoke-DosboxReplacerCommand {
+        param(
+            [Parameter(Mandatory = $true)]
+            [string[]]$Arguments,
+            [Parameter(Mandatory = $true)]
+            [string]$OperationDescription
+        )
+
+        Write-Host "Running command: $exePath $($Arguments -join ' ')" -ForegroundColor Cyan
+
+        $output = & $exePath @Arguments 2>&1
+        $exitCode = $LASTEXITCODE
+
+        if ($exitCode -ne 0) {
+            $joinedOutput = ($output | Where-Object { $_ -ne $null }) -join [Environment]::NewLine
+            if ([string]::IsNullOrWhiteSpace($joinedOutput)) {
+                $joinedOutput = "DosboxStagingReplacer.exe returned exit code $exitCode with no additional output."
+            }
+            throw [System.Exception]::new("Failed to $OperationDescription.`n$joinedOutput")
+        }
+
+        return $output
+    }
 
     # Call the function to fill in the combobox
     FillGameSelection -FilterDosOnly ($dosOnly.IsChecked -eq $true)
@@ -309,29 +331,44 @@ else {
                 $extraArgs += "false"
             }
 
+            try {
             # We call the following from DosboxStagingReplacer.exe in the following order:
             # 1. -b (For backup)
             # 2. -rd -rk (releaseKey) -dv (dosboxVersion) [Assuming that the mode is Installed]
             # 3. -rd -rk (releaseKey) -dvm (dosboxVersionText) [Assuming that the mode is Portable]
 
             # Call 1.
-            & $exePath -b
-            # Call 2.
+            Invoke-DosboxReplacerCommand -Arguments @("-b") -OperationDescription "create a backup of the Galaxy database"
+
+            # Call 2 / 3 depending on mode.
+            $arguments = @("-rd", "-rk", $selectedGame.ReleaseKey)
+
             if ($dosboxMode.SelectedItem -eq "Installed") {
-                & $exePath -rd -rk $selectedGame.ReleaseKey -dv $dosboxVersion.SelectedItem @extraArgs
-                # Print the arguments to the console for debugging
-                Write-Host "Running command: $exePath -rd -rk $($selectedGame.ReleaseKey) -dv $($dosboxVersion.SelectedItem) @($extraArgs -join ' ')"
+                $arguments += @("-dv", $dosboxVersion.SelectedItem)
+                if ($extraArgs.Count -gt 0) {
+                    $arguments += $extraArgs
+                }
+                Invoke-DosboxReplacerCommand -Arguments $arguments -OperationDescription "replace DOSBox using an installed version"
             }
-            # Call 3.
             else {
-                & $exePath -rd -rk $selectedGame.ReleaseKey -dvm $dosboxVersionText.Text @extraArgs
+                $arguments += @("-dvm", $dosboxVersionText.Text)
+                if ($extraArgs.Count -gt 0) {
+                    $arguments += $extraArgs
+                }
+                Invoke-DosboxReplacerCommand -Arguments $arguments -OperationDescription "replace DOSBox using a manual path"
             }
+
             # Show a message box to indicate success
             [System.Windows.MessageBox]::Show("Dosbox version changed successfully.", "Success", "OK", "Information")
-        })
+        }
+        catch {
+            $errorMessage = $_.Exception.Message
+            Write-Host $errorMessage -ForegroundColor Red
+            [System.Windows.MessageBox]::Show($errorMessage, "Error", "OK", "Error")
+        }
+    })
 
 
     # Show the window
     $window.ShowDialog() | Out-Null
 }
-
