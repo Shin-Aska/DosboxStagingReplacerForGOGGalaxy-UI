@@ -1,0 +1,91 @@
+name: Package and Release Bundle
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create bundle.zip
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+
+          $repoArchive = Join-Path $env:RUNNER_TEMP "repo.zip"
+          $repoExtractDir = Join-Path $env:RUNNER_TEMP "repo"
+          $bundleDir = Join-Path $env:RUNNER_TEMP "bundle"
+          $bundleZip = Join-Path $env:GITHUB_WORKSPACE "bundle.zip"
+          $upstreamReleaseApi = "https://api.github.com/repos/Shin-Aska/DosboxStagingReplacerForGOGGalaxy/releases/latest"
+
+          if (Test-Path $repoExtractDir) {
+            Remove-Item -LiteralPath $repoExtractDir -Recurse -Force
+          }
+
+          if (Test-Path $bundleDir) {
+            Remove-Item -LiteralPath $bundleDir -Recurse -Force
+          }
+
+          if (Test-Path $bundleZip) {
+            Remove-Item -LiteralPath $bundleZip -Force
+          }
+
+          git archive --format=zip --output="$repoArchive" $env:GITHUB_SHA
+
+          Expand-Archive -LiteralPath $repoArchive -DestinationPath $repoExtractDir -Force
+          New-Item -ItemType Directory -Path $bundleDir | Out-Null
+          Copy-Item -Path (Join-Path $repoExtractDir "*") -Destination $bundleDir -Recurse -Force
+
+          $headers = @{
+            "Accept" = "application/vnd.github+json"
+            "User-Agent" = "github-actions"
+          }
+
+          $latestRelease = Invoke-RestMethod -Uri $upstreamReleaseApi -Headers $headers
+          $exeAsset = $latestRelease.assets |
+            Where-Object { $_.name -ieq "DosboxStagingReplacer.exe" } |
+            Select-Object -First 1
+
+          if (-not $exeAsset) {
+            $exeAsset = $latestRelease.assets |
+              Where-Object { $_.name -match '\.exe$' } |
+              Select-Object -First 1
+          }
+
+          if (-not $exeAsset) {
+            throw "Could not find a .exe asset in the latest upstream release."
+          }
+
+          $exeOutputPath = Join-Path $bundleDir $exeAsset.name
+          Invoke-WebRequest -Uri $exeAsset.browser_download_url -OutFile $exeOutputPath
+
+          Add-Type -AssemblyName System.IO.Compression.FileSystem
+          [System.IO.Compression.ZipFile]::CreateFromDirectory($bundleDir, $bundleZip)
+
+      - name: Upload bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle
+          path: bundle.zip
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: bundle.zip
+          generate_release_notes: true
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
