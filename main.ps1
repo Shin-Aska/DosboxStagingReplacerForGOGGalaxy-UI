@@ -117,13 +117,84 @@ else {
         Write-Host "Error fetching available DOSBox versions: $_" -ForegroundColor Red
     }
 
-    if ($sources.Count -eq 0) {
-        [System.Windows.MessageBox]::Show(
-            "No DOSBox installation was found on your system.`n`nPlease download and install one of the following:`n`n- DOSBox Staging: https://dosbox-staging.github.io/`n- DOSBox-X: https://dosbox-x.com/`n- DOSBox Pure (via RetroArch)`n`nAfter installing, restart this application.",
-            "No DOSBox Found",
-            [System.Windows.MessageBoxButton]::OK,
-            [System.Windows.MessageBoxImage]::Error
+    function Show-DosboxDownloadMessageBox {
+        param (
+            [System.Windows.Window]$Owner
         )
+
+        $dialog = New-Object System.Windows.Window
+        $dialog.Title = "No DOSBox Found"
+        $dialog.Width = 500
+        $dialog.SizeToContent = [System.Windows.SizeToContent]::Height
+        $dialog.ResizeMode = [System.Windows.ResizeMode]::NoResize
+        $dialog.Background = [System.Windows.Media.Brushes]::White
+        if ($null -ne $Owner -and $Owner.IsVisible) {
+            $dialog.Owner = $Owner
+            $dialog.WindowStartupLocation = [System.Windows.WindowStartupLocation]::CenterOwner
+        }
+        else {
+            $dialog.WindowStartupLocation = [System.Windows.WindowStartupLocation]::CenterScreen
+        }
+
+        $container = New-Object System.Windows.Controls.StackPanel
+        $container.Margin = New-Object System.Windows.Thickness -ArgumentList 18
+
+        $message = New-Object System.Windows.Controls.TextBlock
+        $message.Text = "No DOSBox installation was found on your system.`n`nPlease download and install one of the following:"
+        $message.TextWrapping = [System.Windows.TextWrapping]::Wrap
+        $message.Margin = New-Object System.Windows.Thickness -ArgumentList 0, 0, 0, 12
+        $container.Children.Add($message) | Out-Null
+
+        $downloads = @(
+            @{ Label = "DOSBox Staging"; Url = "https://dosbox-staging.github.io/" },
+            @{ Label = "DOSBox-X"; Url = "https://dosbox-x.com/" },
+            @{ Label = "DOSBox Pure"; Url = "https://github.com/schellingb/dosbox-pure" }
+        )
+
+        foreach ($download in $downloads) {
+            $linkLine = New-Object System.Windows.Controls.TextBlock
+            $linkLine.TextWrapping = [System.Windows.TextWrapping]::Wrap
+            $linkLine.Margin = New-Object System.Windows.Thickness -ArgumentList 0, 0, 0, 6
+
+            $prefix = New-Object System.Windows.Documents.Run -ArgumentList "- "
+            $hyperlink = New-Object System.Windows.Documents.Hyperlink
+            $hyperlink.NavigateUri = [Uri]$download.Url
+            $hyperlink.Inlines.Add((New-Object System.Windows.Documents.Run -ArgumentList $download.Label)) | Out-Null
+            $hyperlink.Add_RequestNavigate({
+                    param ($sender, $eventArgs)
+                    Start-Process -FilePath $eventArgs.Uri.AbsoluteUri
+                    $eventArgs.Handled = $true
+                })
+
+            $linkLine.Inlines.Add($prefix) | Out-Null
+            $linkLine.Inlines.Add($hyperlink) | Out-Null
+            $container.Children.Add($linkLine) | Out-Null
+        }
+
+        $restartMessage = New-Object System.Windows.Controls.TextBlock
+        $restartMessage.Text = "`nAfter installing, restart this application."
+        $restartMessage.TextWrapping = [System.Windows.TextWrapping]::Wrap
+        $restartMessage.Margin = New-Object System.Windows.Thickness -ArgumentList 0, 4, 0, 16
+        $container.Children.Add($restartMessage) | Out-Null
+
+        $okButton = New-Object System.Windows.Controls.Button
+        $okButton.Content = "OK"
+        $okButton.Width = 80
+        $okButton.Height = 28
+        $okButton.HorizontalAlignment = [System.Windows.HorizontalAlignment]::Right
+        $okButton.IsDefault = $true
+        $okButton.Add_Click({
+                $dialog.DialogResult = $true
+                $dialog.Close()
+            })
+        $container.Children.Add($okButton) | Out-Null
+
+        $dialog.Content = $container
+        $dialog.ShowDialog() | Out-Null
+    }
+
+    if ($sources.Count -eq 0) {
+        Show-DosboxDownloadMessageBox -Owner $window
         $window.Close()
         return
     }
@@ -381,41 +452,41 @@ else {
             }
 
             try {
-            # We call the following from DosboxStagingReplacer.exe in the following order:
-            # 1. -b (For backup)
-            # 2. -rd -rk (releaseKey) -dv (dosboxVersion) [Assuming that the mode is Installed]
-            # 3. -rd -rk (releaseKey) -dvm (dosboxVersionText) [Assuming that the mode is Portable]
+                # We call the following from DosboxStagingReplacer.exe in the following order:
+                # 1. -b (For backup)
+                # 2. -rd -rk (releaseKey) -dv (dosboxVersion) [Assuming that the mode is Installed]
+                # 3. -rd -rk (releaseKey) -dvm (dosboxVersionText) [Assuming that the mode is Portable]
 
-            # Call 1.
-            Invoke-DosboxReplacerCommand -Arguments @("-b") -OperationDescription "create a backup of the Galaxy database"
+                # Call 1.
+                Invoke-DosboxReplacerCommand -Arguments @("-b") -OperationDescription "create a backup of the Galaxy database"
 
-            # Call 2 / 3 depending on mode.
-            $arguments = @("-rd", "-rk", $selectedGame.ReleaseKey)
+                # Call 2 / 3 depending on mode.
+                $arguments = @("-rd", "-rk", $selectedGame.ReleaseKey)
 
-            if ($dosboxMode.SelectedItem -eq "Installed") {
-                $arguments += @("-dv", $dosboxVersion.SelectedItem)
-                if ($extraArgs.Count -gt 0) {
-                    $arguments += $extraArgs
+                if ($dosboxMode.SelectedItem -eq "Installed") {
+                    $arguments += @("-dv", $dosboxVersion.SelectedItem)
+                    if ($extraArgs.Count -gt 0) {
+                        $arguments += $extraArgs
+                    }
+                    Invoke-DosboxReplacerCommand -Arguments $arguments -OperationDescription "replace DOSBox using an installed version"
                 }
-                Invoke-DosboxReplacerCommand -Arguments $arguments -OperationDescription "replace DOSBox using an installed version"
-            }
-            else {
-                $arguments += @("-dvm", $dosboxVersionText.Text)
-                if ($extraArgs.Count -gt 0) {
-                    $arguments += $extraArgs
+                else {
+                    $arguments += @("-dvm", $dosboxVersionText.Text)
+                    if ($extraArgs.Count -gt 0) {
+                        $arguments += $extraArgs
+                    }
+                    Invoke-DosboxReplacerCommand -Arguments $arguments -OperationDescription "replace DOSBox using a manual path"
                 }
-                Invoke-DosboxReplacerCommand -Arguments $arguments -OperationDescription "replace DOSBox using a manual path"
-            }
 
-            # Show a message box to indicate success
-            [System.Windows.MessageBox]::Show("Dosbox version changed successfully.", "Success", "OK", "Information")
-        }
-        catch {
-            $errorMessage = $_.Exception.Message
-            Write-Host $errorMessage -ForegroundColor Red
-            [System.Windows.MessageBox]::Show($errorMessage, "Error", "OK", "Error")
-        }
-    })
+                # Show a message box to indicate success
+                [System.Windows.MessageBox]::Show("Dosbox version changed successfully.", "Success", "OK", "Information")
+            }
+            catch {
+                $errorMessage = $_.Exception.Message
+                Write-Host $errorMessage -ForegroundColor Red
+                [System.Windows.MessageBox]::Show($errorMessage, "Error", "OK", "Error")
+            }
+        })
 
 
     # Show the window
