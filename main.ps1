@@ -78,7 +78,56 @@ else {
 
     # Let us define DosboxVersion combobox and it's sources
     $dosboxVersion = $window.FindName("DosboxVersion")
-    $sources = @("dosbox-staging", "dosbox-x", "dosbox-pure")
+
+    # Query available dosbox installations from the executable
+    $sources = @()
+    try {
+        $laStartInfo = New-Object System.Diagnostics.ProcessStartInfo
+        $laStartInfo.FileName = $exePath
+        $laStartInfo.Arguments = "-la"
+        $laStartInfo.RedirectStandardOutput = $true
+        $laStartInfo.UseShellExecute = $false
+        $laStartInfo.CreateNoWindow = $true
+        $laStartInfo.StandardOutputEncoding = [System.Text.Encoding]::UTF8
+
+        $laProcess = New-Object System.Diagnostics.Process
+        $laProcess.StartInfo = $laStartInfo
+        $laProcess.Start() | Out-Null
+        $laRawOutput = $laProcess.StandardOutput.ReadToEnd()
+        $laProcess.WaitForExit()
+
+        $availableApps = $laRawOutput | ConvertFrom-Json
+
+        # Match against applicationName (case-insensitive partial match), add in priority order
+        $knownVariants = [ordered]@{
+            "dosbox-staging" = "dosbox staging"
+            "dosbox-x"       = "dosbox-x"
+            "dosbox-pure"    = "dosbox pure"
+        }
+
+        foreach ($key in $knownVariants.Keys) {
+            $needle = $knownVariants[$key]
+            $match = $availableApps | Where-Object { $_.applicationName -match [regex]::Escape($needle) }
+            if ($match) {
+                $sources += $key
+            }
+        }
+    }
+    catch {
+        Write-Host "Error fetching available DOSBox versions: $_" -ForegroundColor Red
+    }
+
+    if ($sources.Count -eq 0) {
+        [System.Windows.MessageBox]::Show(
+            "No DOSBox installation was found on your system.`n`nPlease download and install one of the following:`n`n- DOSBox Staging: https://dosbox-staging.github.io/`n- DOSBox-X: https://dosbox-x.com/`n- DOSBox Pure (via RetroArch)`n`nAfter installing, restart this application.",
+            "No DOSBox Found",
+            [System.Windows.MessageBoxButton]::OK,
+            [System.Windows.MessageBoxImage]::Error
+        )
+        $window.Close()
+        return
+    }
+
     $dosboxVersion.ItemsSource = $sources
     $dosboxVersion.IsEditable = $false
     $dosboxVersion.SelectedIndex = 0
