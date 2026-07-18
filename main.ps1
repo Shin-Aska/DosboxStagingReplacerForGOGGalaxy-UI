@@ -1,4 +1,4 @@
-$scriptVersion = "1.1.6"
+$scriptVersion = "1.1.8"
 
 try {
     Add-Type -AssemblyName PresentationFramework -ErrorAction Stop
