@@ -117,91 +117,47 @@ else {
         Write-Host "Error fetching available DOSBox versions: $_" -ForegroundColor Red
     }
 
-    function Show-DosboxDownloadMessageBox {
-        param (
-            [System.Windows.Window]$Owner
-        )
+    # Wire up the download helper buttons regardless of whether an installed DOSBox was found.
+    # These open the official download pages in the user's default browser.
+    $downloadButtons = @(
+        @{ Name = "DownloadStagingButton"; Url = "https://www.dosbox-staging.org/" },
+        @{ Name = "DownloadXButton"; Url = "https://dosbox-x.com/" },
+        @{ Name = "DownloadPureButton"; Url = "https://github.com/schellingb/dosbox-pure" }
+    )
 
-        $dialog = New-Object System.Windows.Window
-        $dialog.Title = "No DOSBox Found"
-        $dialog.Width = 500
-        $dialog.SizeToContent = [System.Windows.SizeToContent]::Height
-        $dialog.ResizeMode = [System.Windows.ResizeMode]::NoResize
-        $dialog.Background = [System.Windows.Media.Brushes]::White
-        if ($null -ne $Owner -and $Owner.IsVisible) {
-            $dialog.Owner = $Owner
-            $dialog.WindowStartupLocation = [System.Windows.WindowStartupLocation]::CenterOwner
-        }
-        else {
-            $dialog.WindowStartupLocation = [System.Windows.WindowStartupLocation]::CenterScreen
-        }
-
-        $container = New-Object System.Windows.Controls.StackPanel
-        $container.Margin = New-Object System.Windows.Thickness -ArgumentList 18
-
-        $message = New-Object System.Windows.Controls.TextBlock
-        $message.Text = "No DOSBox installation was found on your system.`n`nPlease download and install one of the following:"
-        $message.TextWrapping = [System.Windows.TextWrapping]::Wrap
-        $message.Margin = New-Object System.Windows.Thickness -ArgumentList 0, 0, 0, 12
-        $container.Children.Add($message) | Out-Null
-
-        $downloads = @(
-            @{ Label = "DOSBox Staging"; Url = "https://dosbox-staging.github.io/" },
-            @{ Label = "DOSBox-X"; Url = "https://dosbox-x.com/" },
-            @{ Label = "DOSBox Pure"; Url = "https://github.com/schellingb/dosbox-pure" }
-        )
-
-        foreach ($download in $downloads) {
-            $linkLine = New-Object System.Windows.Controls.TextBlock
-            $linkLine.TextWrapping = [System.Windows.TextWrapping]::Wrap
-            $linkLine.Margin = New-Object System.Windows.Thickness -ArgumentList 0, 0, 0, 6
-
-            $prefix = New-Object System.Windows.Documents.Run -ArgumentList "- "
-            $hyperlink = New-Object System.Windows.Documents.Hyperlink
-            $hyperlink.NavigateUri = [Uri]$download.Url
-            $hyperlink.Inlines.Add((New-Object System.Windows.Documents.Run -ArgumentList $download.Label)) | Out-Null
-            $hyperlink.Add_RequestNavigate({
+    foreach ($entry in $downloadButtons) {
+        $button = $window.FindName($entry.Name)
+        $url = $entry.Url
+        if ($null -ne $button) {
+            $button.Add_Click({
                     param ($sender, $eventArgs)
-                    Start-Process -FilePath $eventArgs.Uri.AbsoluteUri
-                    $eventArgs.Handled = $true
-                })
-
-            $linkLine.Inlines.Add($prefix) | Out-Null
-            $linkLine.Inlines.Add($hyperlink) | Out-Null
-            $container.Children.Add($linkLine) | Out-Null
+                    Start-Process -FilePath $url
+                }.GetNewClosure())
         }
-
-        $restartMessage = New-Object System.Windows.Controls.TextBlock
-        $restartMessage.Text = "`nAfter installing, restart this application."
-        $restartMessage.TextWrapping = [System.Windows.TextWrapping]::Wrap
-        $restartMessage.Margin = New-Object System.Windows.Thickness -ArgumentList 0, 4, 0, 16
-        $container.Children.Add($restartMessage) | Out-Null
-
-        $okButton = New-Object System.Windows.Controls.Button
-        $okButton.Content = "OK"
-        $okButton.Width = 80
-        $okButton.Height = 28
-        $okButton.HorizontalAlignment = [System.Windows.HorizontalAlignment]::Right
-        $okButton.IsDefault = $true
-        $okButton.Add_Click({
-                $dialog.DialogResult = $true
-                $dialog.Close()
-            })
-        $container.Children.Add($okButton) | Out-Null
-
-        $dialog.Content = $container
-        $dialog.ShowDialog() | Out-Null
     }
+
+    $downloadDosboxPanel = $window.FindName("DownloadDosboxPanel")
 
     if ($sources.Count -eq 0) {
-        Show-DosboxDownloadMessageBox -Owner $window
-        $window.Close()
-        return
-    }
+        # No installed DOSBox variants detected. Show a helpful inline panel with download
+        # links and default to Portable mode so the user can still point to a downloaded copy.
+        [System.Windows.MessageBox]::Show(
+            "No installed DOSBox version was found on this system.`n`n" +
+            "You can download one using the buttons that now appear in the UI, " +
+            "then either install it or switch to Portable mode and select the downloaded executable.",
+            "No DOSBox Found",
+            [System.Windows.MessageBoxButton]::OK,
+            [System.Windows.MessageBoxImage]::Information)
 
-    $dosboxVersion.ItemsSource = $sources
-    $dosboxVersion.IsEditable = $false
-    $dosboxVersion.SelectedIndex = 0
+        $dosboxVersion.Visibility = "Collapsed"
+        $downloadDosboxPanel.Visibility = "Visible"
+        $dosboxMode.SelectedItem = "Portable"
+    }
+    else {
+        $dosboxVersion.ItemsSource = $sources
+        $dosboxVersion.IsEditable = $false
+        $dosboxVersion.SelectedIndex = 0
+    }
 
     # Let us define DosboxVersionText TextBox
     $dosboxVersionText = $window.FindName("DosboxVersionText")
@@ -219,11 +175,17 @@ else {
                 $dosboxVersion.Visibility = "Visible"
                 $dosboxVersionText.Visibility = "Collapsed"
                 $dosboxModeButton.Visibility = "Collapsed"
+                if ($downloadDosboxPanel -and $sources.Count -gt 0) {
+                    $downloadDosboxPanel.Visibility = "Collapsed"
+                }
             }
             else {
                 $dosboxVersion.Visibility = "Collapsed"
                 $dosboxVersionText.Visibility = "Visible"
                 $dosboxModeButton.Visibility = "Visible"
+                if ($downloadDosboxPanel -and $sources.Count -eq 0) {
+                    $downloadDosboxPanel.Visibility = "Visible"
+                }
             }
         })
 
