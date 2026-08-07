@@ -15,7 +15,9 @@
             <!-- Top controls -->
             <RowDefinition Height="Auto" />
             <!-- DOSBox version row -->
-             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <!-- Download helpers (shown only when no installed DOSBox is found) -->
+            <RowDefinition Height="Auto" />
             <!-- DosboxStaging Replacer settings row -->
             <RowDefinition Height="*" />
             <!-- Main content -->
@@ -29,7 +31,7 @@
 
         <!-- Background -->
         <Image x:Name="Background"
-            Grid.RowSpan="4" Grid.ColumnSpan="3"
+            Grid.RowSpan="5" Grid.ColumnSpan="3"
             Source="/dosbox-replacer.png"
             Stretch="UniformToFill"
             Panel.ZIndex="-1" />
@@ -93,8 +95,38 @@
                 Height="30" />
         </StackPanel>
 
+        <!-- Download helper row (appears when no installed DOSBox is found) -->
+        <StackPanel x:Name="DownloadDosboxPanel"
+            Orientation="Horizontal"
+            Grid.Row="2" Grid.Column="0"
+            Grid.ColumnSpan="3"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            Visibility="Collapsed"
+            Margin="10,0,10,10">
+            <TextBlock x:Name="DownloadDosboxLabel"
+                Text="No installed DOSBox found. Download one:"
+                Foreground="White"
+                VerticalAlignment="Center"
+                Margin="0,0,10,0" />
+            <Button x:Name="DownloadStagingButton"
+                Content="DOSBox Staging"
+                Width="110"
+                Height="30"
+                Margin="0,0,6,0" />
+            <Button x:Name="DownloadXButton"
+                Content="DOSBox-X"
+                Width="80"
+                Height="30"
+                Margin="0,0,6,0" />
+            <Button x:Name="DownloadPureButton"
+                Content="DOSBox Pure"
+                Width="90"
+                Height="30" />
+        </StackPanel>
+
         <StackPanel Orientation="Horizontal"
-                    Grid.Row="2" Grid.Column="0"
+                    Grid.Row="3" Grid.Column="0"
                     Grid.ColumnSpan="3"
                     HorizontalAlignment="Center"
                     Margin="10">
@@ -114,7 +146,7 @@
 
         <!-- Main content area -->
         <RichTextBox x:Name="GameDescription"
-            Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="3"
+            Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3"
             Margin="20"
             VerticalAlignment="Stretch"
             HorizontalAlignment="Stretch">
