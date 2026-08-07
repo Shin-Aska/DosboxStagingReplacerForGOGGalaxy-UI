@@ -85,6 +85,8 @@ This method is for users who want to run the latest, unreleased code directly.
 3.  **Configure Options**
     Choose whether you are using an "Installed" or "Portable" DOSBox version and select the appropriate version or path.
 
+    > **No installed DOSBox?** If the tool cannot find an installed DOSBox version, it will show download buttons for **DOSBox Staging**, **DOSBox-X**, and **DOSBox Pure** in the UI. You can click one to open the download page, then use **Portable** mode to select the downloaded executable.
+
 4.  **Apply Changes**
     Click the **Change DOSBox** button to perform the replacement. A success message will appear when finished.
 
